@@ -6,7 +6,7 @@
                 :value="item"
                 @input="handleInput" 
                 @keypress.enter="addTodo"/>
-        <button @click="addTodo">추가</button>
+        <button id="addBtn" @click="addTodo">추가</button>
     </div>
 </template>
 
@@ -32,3 +32,7 @@ export default defineComponent({
     }
 })
 </script>
+
+<style scoped>
+
+</style>
