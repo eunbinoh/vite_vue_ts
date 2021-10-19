@@ -31,15 +31,26 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.item{
+li {
+   list-style: none;
+   margin-top: 10px;
+}
+.item {
     cursor: pointer;
 }
- .complete{
-     text-decoration: line-through;
+.complete {
+   text-decoration: line-through;
+   color: #9270a3;
  }
- #rmBtn {
-  margin-left: auto;
-  padding-right: 20px !important;
+#rmBtn {
+  margin-left: 20px !important;
   color: grey;
+  background-color: white;
+  border-radius: 5px;
+  border: 1px solid grey;
+}
+#rmBtn:hover{
+  color: white;
+  background-color: grey;
 }
 </style>

@@ -6,7 +6,7 @@
                 :value="item"
                 @input="handleInput" 
                 @keypress.enter="addTodo"/>
-        <button id="addBtn" @click="addTodo">추가</button>
+        <button id="addBtn" @click="addTodo">+</button>
     </div>
 </template>
 
@@ -34,5 +34,17 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
+#addBtn {
+  margin-left: 10px !important;
+  font-size: large;
+  font-weight: bold;
+  color: white;
+  background-color: #9c7bac85;
+  border-radius: 5px;
+  border: 1px solid #9c7bac85;
+}
+#addBtn:hover{
+  color: #9270a3;
+  background-color: white;
+}
 </style>

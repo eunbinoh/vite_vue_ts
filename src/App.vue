@@ -96,11 +96,17 @@ fetchTodoItems();
 </script>
 
 <style scoped>
- header{
-  font-family: 'Nanum Brush Script', cursive;
+@import url('https://fonts.googleapis.com/css2?family=Stylish&display=swap');
+
+ header {
+  font-family: 'Stylish', cursive;
   text-align: center;
   background-color: #9c7bac85;
   color: aliceblue;
+}
+ main {
+  font-family: 'Stylish', sans-serif;
+  text-align: center;
 }
 
 </style>
