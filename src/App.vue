@@ -1,6 +1,7 @@
 <template>
   <header>
-      <h1> TODO _Vue.Ts</h1>
+      <h1> {{ today }} _TODO LIST </h1>
+      <p> Author_ nonbi</p>
   </header>
   <main>
     <TodoInput :item="content.todoText" @input="updateTodoText" @add="addTodoItem"/>
@@ -22,13 +23,16 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import TodoInput from "./components/TodoInput.vue"
-import TodoList from "./components/TodoList.vue";
-import { reactive } from "vue";
+import TodoList from "./components/TodoList.vue"
+import dayjs from "dayjs"
+import { reactive } from "vue"
 
 export interface Todo {
   title: string,
   done: boolean;
 }
+
+const today = dayjs().format("MM/ DD ");
 
 const content = reactive({
   todoText:'',
@@ -81,7 +85,6 @@ const fetchTodoItems = () => {
   });
 }
 
-
 const toggleComplete = (todoItem:Todo, index:number) => {
   content.todoItems.splice(index,1, { ...todoItem, done: !todoItem.done })
 }
@@ -97,7 +100,6 @@ fetchTodoItems();
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Stylish&display=swap');
-
  header {
   font-family: 'Stylish', cursive;
   text-align: center;
@@ -108,6 +110,9 @@ fetchTodoItems();
   font-family: 'Stylish', sans-serif;
   text-align: center;
 }
-
+ p {
+  font-family: 'Stylish', sans-serif;
+  text-align: right;
+}
 </style>
 
