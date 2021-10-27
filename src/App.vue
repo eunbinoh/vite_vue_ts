@@ -32,7 +32,7 @@ export interface Todo {
   done: boolean;
 }
 
-const today = dayjs().format("MM/ DD ");
+const today = dayjs().format("MM/DD");
 
 const content = reactive({
   todoText:'',
