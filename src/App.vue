@@ -44,8 +44,9 @@ const addTodoItem = () => {
   const todo: Todo = {
     title: value,
     done: false
-  }
 
+  }
+  
   content.todoItems.push(todo);
   storage.save(content.todoItems);
   initTodoText();
