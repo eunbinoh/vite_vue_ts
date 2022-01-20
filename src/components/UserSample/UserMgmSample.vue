@@ -37,8 +37,8 @@
                         header: '사용자구분',
                         width: 150,
                         vmDataMap: {
-                            tableId: 'SYS_CODE',
-                            code: 'SYS001',
+                            tableId: '***_CODE',
+                            code: '***001',
                         }
                     },
 

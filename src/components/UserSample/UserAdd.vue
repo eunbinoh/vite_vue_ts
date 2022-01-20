@@ -21,8 +21,8 @@
             <VmSelect
               label="사용자구분" 
               v-model="condData.userTp" 
-              table-id="SYS_CODE"
-              code="SYS01"
+              table-id="***_CODE"
+              code="***01"
               option-first="CHOOSE"
             />
           </VmCell>
@@ -46,7 +46,7 @@
             <VmSelect 
               label="사업장" 
               v-model="condData.bizplcCd" 
-              table-id= "CMM_CODE"
+              table-id= "***_CODE"
               option-first="CHOOSE"
             />
           </VmCell>
@@ -56,7 +56,7 @@
             <VmSelect 
               label="근무지" 
               v-model="condData.workArea" 
-              table-id= "CMM_CODE"
+              table-id= "***_CODE"
               option-first="CHOOSE"
             />
           </VmCell>
