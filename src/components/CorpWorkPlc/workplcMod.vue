@@ -1,7 +1,8 @@
 <template>
   <VmModal ref="vmModalRef">
-    <template #header-title>근무지추가</template>
+    <template #header-title>근무지수정</template>
     <template #header-button>
+      <VmButtonQuery class="searchBtn" @click="open" />
       <VmButtonSave class="saveBtn" @click="saveWorkplc">저장</VmButtonSave>
     </template>
 
@@ -51,14 +52,14 @@
       <ul v-if="condData.workChkMedWifi == '1'">
         <h1>WIFI</h1>
           <li
-             v-for="(wifiContent, i) in condData.wifiList"
-             :wifiContent = "wifiContent"
-             :key = "wifiContent.wifiNm"
+             v-for="(wifi, i) in condData.wifiList"
+             :wifi = "wifi"
+             :key = "wifi.wifiNm"
              :index = "i"
           >
             <VmRow>
-              <div class="reamrkInput"><VmSearch v-model="wifiContent.wifiNm" /></div>
-              <VmSearch v-model=" wifiContent.wifiAddr" />
+              <div class="reamrkInput"><VmSearch v-model="wifi.wifiNm" /></div>
+              <VmSearch v-model=" wifi.wifiAddr" />
               <VmIcon class="vm-icon wifiIcon" name="wifi" @click="callWifi(i)" />
               <VmButton class="plmiBtn" v-if="i < 4 && condData.wifiList.length == i+1" @click="addRow('addWifi', i)">+</VmButton>
               <VmButton class="plmiBtn" v-if="i >= 0" @click="removeRow('rmWifi',i)">-</VmButton>
@@ -70,14 +71,14 @@
       <ul v-if="condData.workChkMedBea == '1'">
         <h1>BEACON</h1>
           <li
-             v-for="(beaconContent, j) in condData.beaconList"
-             :beaconContent = "beaconContent"
-             :key = "beaconContent.beaconNm"
+             v-for="(beacon, j) in condData.beaconList"
+             :beacon = "beacon"
+             :key = "beacon.beaconNm"
              :index = "j"
           >
             <VmRow>
-              <div class="reamrkInput"><VmSearch v-model="beaconContent.beaconNm" /></div>
-              <VmSearch v-model=" beaconContent.beaconId" />
+              <div class="reamrkInput"><VmSearch v-model="beacon.beaconNm" /></div>
+              <VmSearch v-model=" beacon.beaconId" />
               <VmButton class="plmiBtn" v-if="j < 4 && condData.beaconList.length == j+1"  @click="addRow('addBea', j)">+</VmButton>
               <VmButton class="plmiBtn" v-if="j >= 0" @click="removeRow('rmBea',j)">-</VmButton>
             </VmRow>
@@ -149,7 +150,7 @@
       </ul>
 
       <VmRow>
-        <div ref="mapRef" class="map"></div>
+        <div ref="mapCRef" class="map"></div>
       </VmRow>
     </VmContainer>
   </VmModal>
@@ -162,7 +163,7 @@ import { http } from "../../../core";
 import VmButton from "@/core/components/button/VmButton.vue";
 
 const vmModalRef = ref<VmModalInterface>()
-const POPUP_URL = '/corpWorkplc/addWorkplc'
+const POPUP_URL = '/corpWorkplc/updateWorkplc'
 
 type WorkplcGps = {
   gpsLat: string | undefined
@@ -170,30 +171,31 @@ type WorkplcGps = {
   gpsScope: string | undefined
 }
 
-type WifiContents = {
+type Wifi = {
   wifiNm: string | undefined
   wifiAddr:  string | undefined
+  seq: number | undefined
 }
 
-type BeaconContents = {
+type Beacon = {
   beaconNm: string | undefined 
   beaconId: string | undefined 
+  seq: number | undefined
 }
 
 interface CondData {
-  [key: string]: string | number | boolean | Array<string> | Object | null | undefined
+[key: string]: string | number | boolean | Array<string> | Object | null | undefined
   workplcNm: string
   addr: string
   telNo: string
   useYn: boolean
   workChkMedTpList: Array<string>
-  workChkMedGps :string
-  workChkMedWifi :string 
-  workChkMedBea :string
-
-  wifiList: Array<WifiContents>
-  beaconList: Array<BeaconContents>
+  workChkMedGps : string,
+  workChkMedWifi : string,
+  workChkMedBea : string,
   workplcGps: WorkplcGps
+  wifiList: Array<Wifi>
+  beaconList: Array<Beacon>
 }
 
 const condData = reactive<CondData>({
@@ -208,18 +210,18 @@ const condData = reactive<CondData>({
   workplcGps: {
     gpsLat: '',
     gpsLong: '',
-    gpsScope: '50'
+    gpsScope: ''
   },
   wifiList: [],
   beaconList: []
-})
+});
 
 
-const kakaoB = (window as any).kakao;
-const mapRef = ref<HTMLDivElement>()
+const kakaoC = (window as any).kakao;
+const mapCRef = ref<HTMLDivElement>()
 
-async function open() {
-  initCond();
+async function open(param :any) {
+  initCond(param);
   const modal = vmModalRef.value?.open()
   await nextTick()
   initKakao()
@@ -227,59 +229,40 @@ async function open() {
 }
 
 function initKakao() {
-  kakaoB.maps.load(() => {
+  kakaoC.maps.load(() => {
 
     // 지도영역 설정
-    const mapContainer2 = mapRef.value 
-    const mapOption2 = {
-      center: new kakaoB.maps.LatLng(37.48569, 127.01032), //Default 중심좌표 : 본사
+    const mapContainer3 = mapCRef.value 
+    const mapOption3 = {
+      center: new kakaoC.maps.LatLng(condData.workplcGps.gpsLat, condData.workplcGps.gpsLong), 
       level: 3, //확대 레벨
     };
 
     //지도 초기옵션 세팅
-    let mapB = new kakaoB.maps.Map(mapContainer2, mapOption2);
+    let mapC = new kakaoC.maps.Map(mapContainer3, mapOption3);
 
     // 확대축소 컨트롤 세팅 
-    const control2 = new kakaoB.maps.ZoomControl();
-    mapB.addControl(control2, kakaoB.maps.ControlPosition.TOPRIGHT);
-
-    //초기 중심좌표 찾기 (GeoLocation 현위치 검색)
-    if ('geolocation' in navigator && condData.addr == '') {
-        const options = {
-          enableHighAccuracy : true, // 높은 정확도(GPS:true/false)
-          timeout : 5000 //timeout
-        };
-      navigator.geolocation.getCurrentPosition(success, error, options); 
-    }
-    function success(position :any){
-      let geoLat =  position.coords.latitude;
-      let geoLong =  position.coords.longitude;
-
-      const moveCenter = new kakaoB.maps.LatLng(geoLat, geoLong);
-      mapB.setCenter(moveCenter);
-    }
-    function error(e :any) {
-      alert("Geolocation error [" + e.code + "] : " + e.message);
-    };
+    const control3 = new kakaoC.maps.ZoomControl();
+    mapC.addControl(control3, kakaoC.maps.ControlPosition.TOPRIGHT);
 
     //주소검색 후 중심좌표 설정 (주소지 결과 반영)
-    const geocoder2 = new kakaoB.maps.services.Geocoder();
-    geocoder2.addressSearch(condData.addr, function (result: any, status: any) {
-      if (status === kakaoB.maps.services.Status.OK) {
-        let coords = new kakaoB.maps.LatLng(result[0].y, result[0].x);
-        mapB.setCenter(coords);
+    const geocoder3 = new kakaoC.maps.services.Geocoder();
+    geocoder3.addressSearch(condData.addr, function (result: any, status: any) {
+      if (status === kakaoC.maps.services.Status.OK) {
+        let coords = new kakaoC.maps.LatLng(result[0].y, result[0].x);
+        mapC.setCenter(coords);
         condData.workplcGps.gpsLat = result[0].y;
         condData.workplcGps.gpsLong = result[0].x;
 
         // 마커 등록
-        const marker2 = new kakaoB.maps.Marker({
-          map: mapB,
+        const marker3 = new kakaoC.maps.Marker({
+          map: mapC,
           position: coords
         })
-        marker2.setMap(mapB);
+        marker3.setMap(mapC);
 
         // 반경(원) 객체 등록
-        const drawingCircle = new kakaoB.maps.Circle({
+        const drawingCircle = new kakaoC.maps.Circle({
           strokeWeight: 1, // 선의 두께
           strokeColor: '#00a0e9', // 선의 색깔
           strokeOpacity: 0.1, // 선 불투명도
@@ -292,16 +275,16 @@ function initKakao() {
           radius: condData.workplcGps.gpsScope,
         }
         drawingCircle.setOptions(circleOptions)
-        drawingCircle.setMap(mapB)
+        drawingCircle.setMap(mapC)
 
         // 인포윈도우 등록
-        const infowindow = new kakaoB.maps.InfoWindow({
-          map: mapB,
+        const infowindow = new kakaoC.maps.InfoWindow({
+          map: mapC,
           position: coords,
           content: 
           '<div style="width:70px;padding:3px 3px; margin-left:50%">' + condData.workplcNm + '</div>'
         });
-        infowindow.open(mapB, marker2);
+        infowindow.open(mapC, marker3);
       }
     })
   })
@@ -351,13 +334,15 @@ function addRow(eventNm: string, i: number) {
     case 'addWifi':
           condData.wifiList.push({
             wifiNm: '',
-            wifiAddr: ''
+            wifiAddr: '',
+            seq:0
           });
           break;
     case 'addBea':
           condData.beaconList.push({
             beaconNm: '',
-            beaconId: ''
+            beaconId: '',
+            seq:0
           });
           break;
     default: break;
@@ -366,11 +351,11 @@ function addRow(eventNm: string, i: number) {
 function removeRow(eventNm: string, i: number) {
   switch (eventNm) {
     case 'rmWifi':
-      if(i == 0 && condData.wifiList.length == 1) condData.wifiList.push({wifiAddr:'',wifiNm:''});
+      if(i == 0 && condData.wifiList.length == 1) condData.wifiList.push({wifiAddr:'',wifiNm:'',seq:0});
       condData.wifiList.splice(i, 1);
       break;
     case 'rmBea':
-      if(i == 0 && condData.beaconList.length == 1) condData.beaconList.push({beaconId:'',beaconNm:''});
+      if(i == 0 && condData.beaconList.length == 1) condData.beaconList.push({beaconId:'',beaconNm:'',seq:0});
       condData.beaconList.splice(i, 1);
       break;
     default: break;
@@ -384,35 +369,36 @@ async function callWifi(i: number) {
 
 async function saveWorkplc() {
   console.log('condData',condData)
+  //체크여부에 상관없이, 내용 여부에 따라 방법 저장
   if(condData.workplcGps.gpsLat != '') condData.workChkMedTpList.push('10')
-  if(condData.wifiList.length >= 1 && condData.wifiList[0].wifiAddr != '') condData.workChkMedTpList.push('20');
-  if(condData.beaconList.length >= 1 && condData.beaconList[0].beaconId != '') condData.workChkMedTpList.push('30');
+  if(condData.wifiList.length >= 1 && condData.wifiList[0].wifiNm != '')
+     condData.workChkMedTpList.push('20');
+  if(condData.beaconList.length >= 1 && condData.beaconList[0].beaconNm != '')
+     condData.workChkMedTpList.push('30');
 
   //근무지 저장
-  await http.post('/corpWorkplc/addWorkplc', condData)
+  await http.post('/corpWorkplc/updateWorkplc', condData)
   //저장후 auto close
   vmModalRef.value?.close()
 }
 
-//입력창 초기화
-function initCond() {
-  //wifi,beacon 입력창(열려있던줄숫자) 초기화
-  condData.wifiList.splice(0, condData.wifiList.length-1);
-  condData.beaconList.splice(0, condData.beaconList.length-1);
-  //초기값 설정
-  Object.keys(condData).forEach((el:string) => {
-      if (typeof el == 'string') condData[el] = '' 
-      if (el === 'useYn') condData[el] = true  // 사용여부 디폴트(true)
-      if (el === 'wifiList') condData[el] = [{wifiAddr:'',wifiNm:''}]
-      if (el === 'beaconList') condData[el] = [{beaconId:'',beaconNm:''}]
-      if (el === 'workplcGps') condData[el] = {gpsLat:'',gpsLong:'',gpsScope:'50'}
-  })
+//클릭한 데이터로 입력값 채워넣음
+function initCond(param :any) {
+  Object.keys(condData).forEach((el:string) => {   
+    condData[el] = param[el]
+  }) 
+  condData.workChkMedTpList = []; //초기화(중복방지)
+  //null 일 경우 추가 체크시 초기화
+  if(!param.wifiList) param.wifiList = [{wifiNm:'', wifiAddr:'', seq:0}]
+  if(!param.beaconList) param.beaconList = [{beaconNm:'', beaconAddr:'',seq:0}]
+
+  //gps반경 파싱
+  condData.workplcGps.gpsScope = "" + param.workplcGps.gpsScope;
 }
 
 function addCheckClass(scope: string) {
   return { checked: condData.workplcGps.gpsScope === scope }
 }
-
 
 defineExpose({
   POPUP_URL,
@@ -527,4 +513,5 @@ ul {
   color: #000;
   background-color: #fff;
 }
+
 </style>
