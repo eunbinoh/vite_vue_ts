@@ -2,14 +2,26 @@
   <VmModal ref="vmModalRef">
     <template #header-title>근무지수정</template>
     <template #header-button>
-      <VmButtonQuery class="searchBtn" @click="open" />
-      <VmButtonSave class="saveBtn" @click="saveWorkplc">저장</VmButtonSave>
+        <VmCell >
+          <VmRow class="right_align">
+            <VmButtonSave class="saveBtn" @click="saveWorkplc">저장</VmButtonSave>
+          </VmRow>
+          <VmRow class="right_align">
+            <VmButtonQuery class="searchBtn" @click="" />
+          </VmRow>
+        </VmCell>
     </template>
 
     <VmContainer>
       <div>
         <VmCell>
-          <div class="input_width250"><VmSearch label="근무지명" v-model="condData.workplcNm" /></div>
+          <div class="input_width250">
+            <VmSearch 
+                    label="근무지명" 
+                    v-model="condData.workplcNm" 
+                    @blur="validSet.v_workplcNm"
+             />
+          </div>
         </VmCell>
       </div><br/>
 
@@ -43,9 +55,9 @@
       <VmRow>
         <h1>출퇴근방법</h1>
         <VmRow class="right_align">
+          <VmCheckbox v-model="condData.workChkMedGps" item-label="GPS" />
           <VmCheckbox v-model="condData.workChkMedWifi" item-label="Wi-Fi"/>
           <VmCheckbox v-model="condData.workChkMedBea" item-label="비콘" />
-          <VmCheckbox v-model="condData.workChkMedGps" item-label="GPS" />
         </VmRow>
       </VmRow>
       <br />
@@ -58,12 +70,13 @@
              :index = "i"
           >
             <VmRow>
-              <div class="reamrkInput"><VmSearch v-model="wifi.wifiNm" /></div>
+              <div class="reamrkInput"><VmSearch v-model="wifi.wifiNm" @blur="validSet.v_wifiNm()"/></div>
               <VmSearch v-model=" wifi.wifiAddr" />
               <VmIcon class="vm-icon wifiIcon" name="wifi" @click="callWifi(i)" />
               <VmButton class="plmiBtn" v-if="i < 4 && condData.wifiList.length == i+1" @click="addRow('addWifi', i)">+</VmButton>
               <VmButton class="plmiBtn" v-if="i >= 0" @click="removeRow('rmWifi',i)">-</VmButton>
             </VmRow>
+            <span>{{ validMsg.wifiNm }}</span>
           </li>
       </ul>
       <br />
@@ -77,11 +90,12 @@
              :index = "j"
           >
             <VmRow>
-              <div class="reamrkInput"><VmSearch v-model="beacon.beaconNm" /></div>
+              <div class="reamrkInput"><VmSearch v-model="beacon.beaconNm" @blur="validSet.v_workplcNm"/></div>
               <VmSearch v-model=" beacon.beaconId" />
               <VmButton class="plmiBtn" v-if="j < 4 && condData.beaconList.length == j+1"  @click="addRow('addBea', j)">+</VmButton>
               <VmButton class="plmiBtn" v-if="j >= 0" @click="removeRow('rmBea',j)">-</VmButton>
             </VmRow>
+            <span>{{ validMsg.wifiNm }}</span>
           </li>
       </ul>
       <br />
@@ -160,6 +174,7 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick } from "vue";
 import { http } from "../../../core";
+import { vmConfirm, validators } from '@/core';
 import VmButton from "@/core/components/button/VmButton.vue";
 
 const vmModalRef = ref<VmModalInterface>()
@@ -184,12 +199,12 @@ type Beacon = {
 }
 
 interface CondData {
-[key: string]: string | number | boolean | Array<string> | Object | null | undefined
+[key: string]: string | boolean | Object | Array<Object> | null | undefined
   workplcNm: string
   addr: string
+  workplcCd: string
   telNo: string
   useYn: boolean
-  workChkMedTpList: Array<string>
   workChkMedGps : string,
   workChkMedWifi : string,
   workChkMedBea : string,
@@ -201,9 +216,9 @@ interface CondData {
 const condData = reactive<CondData>({
   workplcNm: '',
   addr: '',
+  workplcCd: '',
   telNo: '',
   useYn: true,
-  workChkMedTpList: [],
   workChkMedGps : '0',
   workChkMedWifi : '0',
   workChkMedBea : '0',
@@ -217,13 +232,45 @@ const condData = reactive<CondData>({
 });
 
 
-const kakaoC = (window as any).kakao;
+const validMsg = reactive({
+  workplcNm:'',
+  wifiNm:'',
+  beaconNm:''
+})
+
+// Validation blur 이벤트
+const validSet = {
+  v_workplcNm: () => {
+    const { workplcNm } = condData; 
+    //중복체크
+    // .. 리스트 조회
+
+    //빈칸체크
+    if(!workplcNm) validMsg.workplcNm = '근무지 이름은 필수 항목입니다.'
+  },
+  v_wifiNm: () => {
+    const { wifiList } = condData;
+    wifiList.forEach((wifi :Wifi, i: number)=>{
+      if(wifiList[i].wifiNm == validSet.v_wifiNm()) validMsg.wifiNm = '중복된 이름입니다.'
+    })
+  },
+  v_beaconNm: () => {
+    const { beaconList } = condData;
+    beaconList.forEach((beacon :Beacon, i: number)=>{
+      if(beaconList[i-1]?.beaconNm == beaconList[i].beaconNm) validMsg.beaconNm = '중복된 이름입니다.'
+    })
+  },
+}
+
+
+
+const kakaoC = (window as any).kakao
 const mapCRef = ref<HTMLDivElement>()
 
 async function open(param :any) {
   initCond(param);
-  const modal = vmModalRef.value?.open()
-  await nextTick()
+  const modal = vmModalRef.value?.open(param)
+  await nextTick(param)
   initKakao()
   return modal
 }
@@ -282,7 +329,7 @@ function initKakao() {
           map: mapC,
           position: coords,
           content: 
-          '<div style="width:70px;padding:3px 3px; margin-left:50%">' + condData.workplcNm + '</div>'
+          '<div style="width:80px;padding:2px 1px; margin-left:50%">' + condData.workplcNm + '</div>'
         });
         infowindow.open(mapC, marker3);
       }
@@ -369,35 +416,53 @@ async function callWifi(i: number) {
 
 async function saveWorkplc() {
   console.log('condData',condData)
-  //체크여부에 상관없이, 내용 여부에 따라 방법 저장
-  if(condData.workplcGps.gpsLat != '') condData.workChkMedTpList.push('10')
-  if(condData.wifiList.length >= 1 && condData.wifiList[0].wifiNm != '')
-     condData.workChkMedTpList.push('20');
-  if(condData.beaconList.length >= 1 && condData.beaconList[0].beaconNm != '')
-     condData.workChkMedTpList.push('30');
+  useChk();
 
-  //근무지 저장
+  //근무지 수정
   await http.post('/corpWorkplc/updateWorkplc', condData)
+
   //저장후 auto close
   vmModalRef.value?.close()
 }
+
+async function useChk(){
+  //useYn 체크
+  console.log(condData.useYn );
+  if(condData.useYn == false){
+      if (await vmConfirm('사용체크 하지않을 경우, 조회되지 않습니다.\n 이대로 저장하시겠습니까?'))
+           return true;
+      else return false;
+  }
+}
+
+
+
+// 유효성검사
+// function validation(){
+
+
+// }
 
 //클릭한 데이터로 입력값 채워넣음
 function initCond(param :any) {
   Object.keys(condData).forEach((el:string) => {   
     condData[el] = param[el]
+    if (el ==='workChkMedGps' ){
+       (param[el] == '0')? condData[el] = '0' : condData[el] = '1' 
+    } 
+    if (el ==='workChkMedWifi' ){
+       (param[el] == '0')? condData[el] = '0' : condData[el] = '1' 
+    }
+    if (el ==='workChkMedBea'){
+       (param[el] == '0')? condData[el] = '0' : condData[el] = '1' 
+    } 
   }) 
-  condData.workChkMedTpList = []; //초기화(중복방지)
-  //null 일 경우 추가 체크시 초기화
-  if(!param.wifiList) param.wifiList = [{wifiNm:'', wifiAddr:'', seq:0}]
-  if(!param.beaconList) param.beaconList = [{beaconNm:'', beaconAddr:'',seq:0}]
-
   //gps반경 파싱
   condData.workplcGps.gpsScope = "" + param.workplcGps.gpsScope;
 }
 
 function addCheckClass(scope: string) {
-  return { checked: condData.workplcGps.gpsScope === scope }
+  return { checked: (condData.workplcGps?.gpsScope == scope) }
 }
 
 defineExpose({
@@ -505,13 +570,21 @@ ul {
   width: px(70);
   height: px(30);
   padding: px(1) px(5) px(1) px(5);
-  margin: px(0) px(0) px(0) px(250);
   border: px(1) solid #c5cfdb;
   border-radius: px(15);
   font-weight: bold;
   font-size: px(16);
   color: #000;
-  background-color: #fff;
+  background-color: #FFF;
 }
-
+.searchBtn {
+  width: px(70);
+  height: px(30);
+  padding: px(1) px(5) px(1) px(5);
+  border: px(1) solid #c5cfdb;
+  border-radius: px(15);
+  font-weight: bold;
+  font-size: px(16);
+  color: #000;
+}
 </style>

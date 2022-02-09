@@ -9,14 +9,14 @@
       <ul>
         <li  
             v-for="(state, i) in states" 
-            :key="state.workplcNm" 
+            :key="state.addr"
             :state="state" 
             :index="i"
         >  
             <!-- @mouseover  = "markerHover = true"
             @mouseleave = "markerHover = false" -->
           <VmCell 
-            v-if="state.workplcNm != ''"  
+            v-if="state != null"  
             class="workplcBox" 
             @click="openWorkplcModifyPopup(i)"
           >           
@@ -30,23 +30,23 @@
                 </div>
               </VmRow>
               <VmRow v-if="state.workChkMedGps == '1'">
-                <strong>좌표 : &nbsp;</strong>
+                <strong>좌표 : &nbsp; </strong>
                 <span >{{ (state.workplcGps.gpsLat)?.substring(0, (state.workplcGps.gpsLat).indexOf(".")+4 ) }} , </span>
                 <span >{{ (state.workplcGps.gpsLong)?.substring(0, (state.workplcGps.gpsLong).indexOf(".")+4 )}} </span>
                 <span >&nbsp; ({{state.workplcGps.gpsScope}} m) </span>
               </VmRow>
               <VmRow v-if="state.workChkMedWifi == '1'">
                 <div>
-                  <strong>Wifi : &nbsp;</strong> 
+                  <strong>Wifi : &nbsp; </strong> 
                   <span> {{ state.wifiList[0].wifiAddr }} </span>
-                  <span v-if="state.wifiList.length> 1 || state.workChkMedBea == '1'" > 외 + {{ state.wifiList.length + state.beaconList.length -1 }}</span>
+                  <span v-if="state.wifiList.length> 1 || state.workChkMedBea == '1'" > &nbsp; 외 + {{ state.wifiList.length + state.beaconList.length -1 }}개</span>
                 </div>
               </VmRow>
               <VmRow v-if="state.workChkMedWifi != '1' && state.workChkMedBea == '1'">
                 <div>
                   <strong>Beacon : &nbsp;</strong> 
-                  <span>{{ state.beaconList[0].beaconId }} </span>
-                  <span v-if="state.beaconList.length > 1" > 외 + {{ state.beaconList.length -1}}</span> 
+                  <span>{{ state.beaconList[0].beaconId }} </span> 
+                  <span v-if="state.beaconList.length > 1" > &nbsp; 외 + {{ state.beaconList.length -1}}개</span> 
                 </div>
               </VmRow>
           </VmCell>
@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref } from "vue";
 import { http } from "@/core";
 import VmButtonQuery from "@/core/components/button/VmButtonQuery.vue";
 import VmButton from "@/core/components/button/VmButton.vue";
@@ -86,7 +86,7 @@ const workplcModifyPopupRef = ref<VmModalInterface>();
 type WorkplcGps = {
   gpsLat: string | null
   gpsLong: string | null
-  gpsScope: string | undefined
+  gpsScope: string | null
 }
 type WifiList = {
   wifiNm: string | null
@@ -100,8 +100,10 @@ type BeaconList = {
 }
 
 interface State {
+[key: string]: string | boolean | Object | Array<Object> | null | undefined
   workplcNm: string
   addr: string
+  workplcCd: string
   workChkMedGps : string 
   workChkMedWifi : string 
   workChkMedBea : string 
@@ -109,31 +111,30 @@ interface State {
   wifiList: Array<WifiList>
   beaconList: Array<BeaconList>
 }
-let states = reactive< Array<State> |[]>([]);
+let states = ref< Array<State> | []>([]);
 
 const kakaoA :any = (window as any).kakao;
 const mapRefA = ref<HTMLDivElement>();
 
 //근무지 리스트 조회
 async function searchWorkplcList(){
+
   interface Position {
     title: string
     latlng: string
   }
-  
+ 
   //리스트 추출
   const workplclist = await http.post('/corpWorkplc/findListWorkplc')
-  console.log('workplclist',workplclist)
-
   if(!workplclist) return;
+  // 초기화 후 결과값 로딩
+  const tempList: Array<State> = [];
   workplclist.forEach((el: any) => {
-    states = [];
     const s :State = {...el};
-    
-    // 리스트가 이미 있으면 더이상 추가되지 않게 하기
-    if(states.length < workplclist.length) states.push(s);
+    tempList.push(s);
   });
-    console.log('states',states)
+
+  states.value = tempList;
 
     //근무지 맵 생성
     kakaoA.maps.load(() => {
@@ -168,16 +169,29 @@ async function searchWorkplcList(){
         
         // 마커 클릭이벤트 등록
         kakaoA.maps.event.addListener(markerA, 'click', function() {
-          console.log(markerA);
-          states.forEach((s :State, i :number) => {
+          states.value.forEach((s :State, i :number) => {
             positions.forEach((item :Position) => { 
-              if(states[i].workplcNm === item.title ) return i 
-              console.log('i',i);
+              if(states.value[i].workplcNm === item.title ) return i 
               openWorkplcModifyPopup(i); 
             })
           })
         });
+        // kakaoA.maps.event.addListener(markerA, 'click', function() {
+        //   console.log(markerA);
+        //   positions.forEach((item :Position, i :number, list :any ) => {
+        //     // positions.find( (i: number) =>{
+        //     //   for(let i=0; i < workplclist.length ; i++){
+        //     //     if(workplclist[i].workplcNm == item.title) return i;
+        //     //     console.log('find i:',i); 
+        //     //     break;
+        //     //   } 
+        //     // }) 
 
+        //     positions.find(({title}, i) => { return title === workplclist[i].workplcNm });
+        //     console.log('i',i);
+        //     openWorkplcModifyPopup(i); 
+        //   })
+        // });
       
       })
      
@@ -185,10 +199,10 @@ async function searchWorkplcList(){
     // 확대축소 컨트롤
     const control2 = new kakaoA.maps.ZoomControl();
     mapA.addControl(control2, kakaoA.maps.ControlPosition.TOPRIGHT); 
-  
-    mapContainer!.style.width = '800px';
-    mapContainer!.style.height = '700px';
-    mapA.relayout();
+    // 맵 컨테이너 세팅값
+    // mapContainer!.style.width = '800px';
+    // mapContainer!.style.height = '700px';
+    // mapA.relayout();
 
   })
 }
@@ -196,17 +210,15 @@ async function searchWorkplcList(){
 //근무지 추가 팝업
 async function openWorkplcRegPopup() {
   await workplcRegPopupRef.value?.open();
+  // 저장후 자동조회
+  searchWorkplcList();
 }
 //근무지 수정 팝업
 async function openWorkplcModifyPopup(i :number) {
-  await workplcModifyPopupRef.value?.open(states[i]);
+  await workplcModifyPopupRef.value?.open(states.value[i]);
+  // 수정후 자동조회
+  searchWorkplcList();
 }
-
-  // //수정후 반영 조회
-  // states.slice(0,states.length-1)
-  // await searchWorkplcList;
-
-
 
 </script>
 

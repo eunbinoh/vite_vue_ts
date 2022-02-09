@@ -42,9 +42,9 @@
       <VmRow>
         <h1>출퇴근방법</h1>
         <VmRow class="right_align">
-          <VmCheckbox v-model="condData.workChkMedWifi" item-label="Wi-Fi"/>
-          <VmCheckbox v-model="condData.workChkMedBea" item-label="비콘" />
           <VmCheckbox v-model="condData.workChkMedGps" item-label="GPS" />
+          <VmCheckbox v-model="condData.workChkMedWifi" item-label="WiFi"/>
+          <VmCheckbox v-model="condData.workChkMedBea" item-label="Beacon" />
         </VmRow>
       </VmRow>
       <br />
@@ -159,6 +159,7 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick } from "vue";
 import { http } from "../../../core";
+import { vmConfirm } from '@/core';
 import VmButton from "@/core/components/button/VmButton.vue";
 
 const vmModalRef = ref<VmModalInterface>()
@@ -181,12 +182,11 @@ type BeaconContents = {
 }
 
 interface CondData {
-  [key: string]: string | number | boolean | Array<string> | Object | null | undefined
+  [key: string]: string | boolean | Object | Array<Object> | null | undefined
   workplcNm: string
   addr: string
   telNo: string
   useYn: boolean
-  workChkMedTpList: Array<string>
   workChkMedGps :string
   workChkMedWifi :string 
   workChkMedBea :string
@@ -201,7 +201,6 @@ const condData = reactive<CondData>({
   addr: '',
   telNo: '',
   useYn: true,
-  workChkMedTpList: [],
   workChkMedGps : '0',
   workChkMedWifi : '0',
   workChkMedBea : '0',
@@ -213,7 +212,6 @@ const condData = reactive<CondData>({
   wifiList: [],
   beaconList: []
 })
-
 
 const kakaoB = (window as any).kakao;
 const mapRef = ref<HTMLDivElement>()
@@ -299,7 +297,7 @@ function initKakao() {
           map: mapB,
           position: coords,
           content: 
-          '<div style="width:70px;padding:3px 3px; margin-left:50%">' + condData.workplcNm + '</div>'
+          '<div style="width:80px;padding:2px 1px; margin-left:50%">' + condData.workplcNm + '</div>'
         });
         infowindow.open(mapB, marker2);
       }
@@ -384,15 +382,25 @@ async function callWifi(i: number) {
 
 async function saveWorkplc() {
   console.log('condData',condData)
-  if(condData.workplcGps.gpsLat != '') condData.workChkMedTpList.push('10')
-  if(condData.wifiList.length >= 1 && condData.wifiList[0].wifiAddr != '') condData.workChkMedTpList.push('20');
-  if(condData.beaconList.length >= 1 && condData.beaconList[0].beaconId != '') condData.workChkMedTpList.push('30');
+  useChk();
 
   //근무지 저장
   await http.post('/corpWorkplc/addWorkplc', condData)
+
   //저장후 auto close
   vmModalRef.value?.close()
 }
+
+async function useChk(){
+  //useYn 체크
+  console.log(condData.useYn );
+  if(condData.useYn == false){
+      if (await vmConfirm('사용체크 하지않을 경우, 조회되지 않습니다.\n 이대로 저장하시겠습니까?'))
+           return true;
+      else return false;
+  }
+}
+
 
 //입력창 초기화
 function initCond() {
@@ -402,6 +410,7 @@ function initCond() {
   //초기값 설정
   Object.keys(condData).forEach((el:string) => {
       if (typeof el == 'string') condData[el] = '' 
+      if (el.includes('workChkMed')) condData[el] = '0' 
       if (el === 'useYn') condData[el] = true  // 사용여부 디폴트(true)
       if (el === 'wifiList') condData[el] = [{wifiAddr:'',wifiNm:''}]
       if (el === 'beaconList') condData[el] = [{beaconId:'',beaconNm:''}]
