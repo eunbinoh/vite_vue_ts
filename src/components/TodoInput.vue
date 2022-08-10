@@ -46,5 +46,6 @@ export default defineComponent({
 #addBtn:hover{
   color: #9270a3;
   background-color: white;
+  cursor: pointer;
 }
 </style>

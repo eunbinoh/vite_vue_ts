@@ -52,5 +52,6 @@ li {
 #rmBtn:hover{
   color: white;
   background-color: grey;
+  cursor: pointer;
 }
 </style>
