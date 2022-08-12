@@ -7,7 +7,6 @@
         <div class="header_btn">
             <button id="preMonBtn" @click="moveTo"> &lt; </button>
             <button id="nextMonBtn" @click="moveTo"> > </button>
-            <!-- <RouterLink :to="'/MyCalendar2/ 0' + month">{{ month +1 }}달력</RouterLink> -->
         </div>
     </div>
     <div class="right_box_container">
@@ -35,7 +34,7 @@
 
 <script setup lang="ts">
 import { defineComponent, onMounted, reactive, ref } from 'vue';
-import MyCalendar2 from './MyCalendar2.vue'
+// import MyCalendar2 from './MyCalendar2.vue'
 
 
 // const routes = [
@@ -119,7 +118,6 @@ function getMonthOfDays(monthFDay:number, monthLDate:number, preMonthLDate:numbe
 }
 
 function isNotMonth(date: number[], d: number) {
-    // console.log(dates)
     if(date[0] === dates[0][0] && dates[0].indexOf(1)-1 !== -1){ //월 시작일이 일요일,1일 이면 제외
         if (d === dates[0][(dates[0].indexOf(1)-1)]) return true;
         else return false;

@@ -1,6 +1,6 @@
 <template>
     <li>
-        <div>
+        <div class="todoList">
             <span class="item" :class="todoItem.done? 'complete':'item' " @click="toggleItem">
                 {{ todoItem.title }}
             </span>
@@ -11,7 +11,6 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { Todo } from "../App.vue";
 
 export default defineComponent({
     name: 'TodoList',
@@ -34,6 +33,10 @@ export default defineComponent({
 li {
    list-style: none;
    margin-top: 10px;
+}
+.todoList {
+    margin-left: 30px;
+    text-align: left;
 }
 .item {
     cursor: pointer;

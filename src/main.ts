@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './route/router';
 // import { router } from 'vue-router';
 // import VueRouter from 'vue-router';
 // import router from 'vue-router';
-// import {router} from '././route/index.js'
 
 
 // import { store } from './store/index';
