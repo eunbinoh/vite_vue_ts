@@ -7,23 +7,14 @@ import router from './route/router';
 
 
 // import { store } from './store/index';
+
 // const app = createApp(App);
+// app.use(router).mount('#app');
 
-const app = createApp(App);
-// app.use(router);
-
-app.mount('#app');
+createApp(App).use(router).mount('#app')
 
 
 // const routes :any[] = [
 
 // ];
 
-// const router = new VueRouter({
-//   routes
-// });
-
-// new Vue({
-//   render: h : => h(App),
-//   router
-// }).$mount('#app')

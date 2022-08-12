@@ -5,8 +5,7 @@
   </header>
   <main>
 
-    <RouterLink :to="'/myCalendar'" class="goBtn">Go MyCalendar</RouterLink>
-    <RouterView/>
+    <router-link to="/calendar" class="goBtn">Go MyCalendar</router-link>
 
     <TodoInput :item="content.todoText" @input="updateTodoText" @add="addTodoItem" />
     <div class="todoList">

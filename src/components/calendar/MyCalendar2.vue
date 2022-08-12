@@ -5,7 +5,9 @@
         <h1 class="header_txt_month"> {{ year }} </h1>
         <h1 class="header_number_month"> {{ month }} </h1>        
         <div class="header_btn">
-            <button id="preMonBtn" @click="moveTo"> &lt; </button>
+            <button id="preMonBtn" @click="moveTo"> 
+                <router-link to="/calendar">  &lt;   </router-link> 
+            </button>
             <button id="nextMonBtn" @click="moveTo"> > </button>
         </div>
     </div>

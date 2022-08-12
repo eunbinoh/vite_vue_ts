@@ -1,13 +1,12 @@
 <template>
 
   <div>
-    <Home/>
+    <!-- <Home/> -->
+    <router-view />
   </div>
-
 </template>
 
 <script setup lang="ts">
-import Home from '@/components/home/Home.vue';
 
 </script>
 
