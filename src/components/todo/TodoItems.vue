@@ -1,35 +1,36 @@
 <template>
     <li>
         <div class="todoList">
-            <span class="item" :class="todoItem.done? 'complete':'item' " @click="toggleItem">
-                {{ todoItem.title }}
+            <span class="item" :class="todoItem?.done? 'complete':'item' " @click="toggleItem">
+                {{ todoItem?.title }}
             </span>
             <button id="rmBtn" @click="removeItem">삭제</button>
         </div>
     </li>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
+<script setup lang="ts">
+import { PropType } from 'vue'
 
-export default defineComponent({
-    name: 'TodoList',
-    props: {
-        todoItem: Object as PropType<Todo>,
-        index: Number
-    },
-    methods: {
-        toggleItem() {
-            this.$emit('toggle', this.todoItem, this.index);
-        },
-        removeItem() {
-            this.$emit('remove', this.index);
-        }
-    }
+const props = defineProps({
+    todoItem: Object as PropType<Todo>,
+    index: Number
 })
+
+const emit = defineEmits(['toggle', 'remove']);
+
+
+function toggleItem() {
+    emit('toggle', props.todoItem, props.index)
+}
+
+function removeItem() {
+    emit('remove', props.index)
+}
+
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 li {
    list-style: none;
    margin-top: 10px;

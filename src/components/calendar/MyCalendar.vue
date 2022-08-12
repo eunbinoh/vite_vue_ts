@@ -1,50 +1,42 @@
 <template>
-
-<div class="main_container">
-    <div class="left_box_container">
-        <h1 class="header_txt_month"> {{ year }} </h1>
-        <h1 class="header_number_month"> {{ month }} </h1>        
-        <div class="header_btn">
-            <button id="preMonBtn" @click="moveTo"> &lt; </button>
-            <button id="nextMonBtn" @click="moveTo">
-                <router-link to="/calendar2">  >   </router-link> 
-            </button>
+<Header/>
+<main>
+    <div class="main_container">
+        <div class="left_box_container">
+            <h1 class="header_txt_month"> {{ year }} </h1>
+            <h1 class="header_number_month"> {{ month }} </h1>        
+            <div class="header_btn">
+                <button id="preMonBtn" @click="moveTo"> &lt; </button>
+                <button id="nextMonBtn" @click="moveTo"> > </button>
+            </div>
+        </div>
+        <div class="right_box_container">
+            <section class="section">
+                <div class="container">
+                    <table class="table has-text-centered is-fullwidth">
+                        <thead>
+                            <th v-for="w in weeks" :key="w" class="weekDays" :class="{'hDay':w==='SUN'}">{{ w }}</th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(date, i) in dates" :keys="i" class="days_tr" >
+                                <td v-for="(d, j) in date" :key="j" class="days_td" 
+                                    :class="{'hDay' : d == date[0], 'gDay' : isNotMonth(date, d)}">
+                                    {{ d }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
     </div>
-    <div class="right_box_container">
-        <section class="section">
-            <div class="container">
-                <table class="table has-text-centered is-fullwidth">
-                    <thead>
-                        <th v-for="w in weeks" :key="w" class="weekDays" :class="{'hDay':w==='SUN'}">{{ w }}</th>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(date, i) in dates" :keys="i" class="days_tr" >
-                            <td v-for="(d, j) in date" :key="j" class="days_td" 
-                                :class="{'hDay' : d == date[0], 'gDay' : isNotMonth(date, d)}">
-                                {{ d }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-</div>
-
+</main>
 </template>
 
 <script setup lang="ts">
+import Header from '@/components/home/header.vue'
 import { defineComponent, onMounted, reactive, ref } from 'vue';
-// import MyCalendar2 from './MyCalendar2.vue'
 
-
-// const routes = [
-//     {
-//         path: "/MyCalendar/:id",
-//         component: MyCalendar2
-//     }
-// ]
 
 const weeks = ['SUN', 'MON', 'TUE','WED','THU','FRI','SAT'];
 const today = new Date();
@@ -56,9 +48,6 @@ let month = 0;
 let monthFDay = 0;
 let monthLDate = 0;
 let preMonthLDate = 0;
-
-// onMounted(initDate);
-// function initDate(){// }
 
 
 calendarData();
@@ -144,17 +133,16 @@ function moveTo() {
 }
 
 
-    
-
 </script>
 
 <style scoped lang="scss">
 .main_container{
     margin-top: 10px;
     display: flex;
+    justify-content: center;
 }
 .left_box_container{
-    margin-left: 50px;
+    // margin-left: 50px;
     margin-top: 35px;
     font-family: "Stylish", sans-serif;
     line-height: 60px;

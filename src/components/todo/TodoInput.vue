@@ -10,30 +10,25 @@
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-    name: 'TodoInput',
-    props: {
-        item: {
-            type: String,
-            required: true
-        }
-    },
-    methods: {
-        handleInput(event: InputEvent) {
-            const eventTarget = event.target as HTMLInputElement;
-            this.$emit('input', eventTarget.value);
-        },
-        addTodo() {
-            this.$emit('add')
-        },
-    }
+<script setup lang="ts">
+const props = defineProps({
+    item: { type: String, required: true }
 })
+
+const emit = defineEmits(['input','add'])
+
+function handleInput(event: InputEvent) {
+    const eventTarget = event.target as HTMLInputElement;
+    emit('input', eventTarget.value);
+}
+
+function addTodo() {
+    emit('add', props.item)
+}
+
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 #addBtn {
   margin-left: 10px !important;
   font-size: large;
