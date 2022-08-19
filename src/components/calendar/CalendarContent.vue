@@ -1,22 +1,19 @@
 <template>
- <section class="section">
+  <section class="section">
     <div class="container">
-        <table class="table has-text-centered is-fullwidth">
-            <thead>
-                <th v-for="w in weeks" :key="w" class="weekDays" :class="{'hDay':w==='SUN'}">{{ w }}</th>
-            </thead>
-            <tbody>
-                <tr v-for="(d, i) in dates" class="days_tr" >
-                    <td v-if="d.week === i" class="days_td">
-                        {{ d.date }}
-                        <!-- :class="{'hDay' : d == dates[0], 'gDay' : isNotMonth(dates, d)}"> -->
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="content_box ">
+            <div class="content_grid weeks">
+                <th v-for="w in weeks" class="" :class="{'hDay':w==='SUN'}">{{ w }}</th>
+            </div>
+            <div class="content_grid days">
+                <div v-for="(d, i) in dates" class="dayBox" >
+                    <div class="days_td"> {{ d.date }} </div>
+                    <!-- :class="{'hDay' : d == dates[0], 'gDay' : isNotMonth(dates, d)}"> -->
+                </div>
+            </div>
+        </div>
     </div>
-</section>
- 
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -28,24 +25,24 @@ import { weekends, todayYr, todayMonth } from './today';
   const weeks = weekends;
 
   interface Dates {
-    week : number
     date? : number | Date
     todo?  : string
     isHoliDay? : boolean
     isCurrMonth? : boolean
   }
 
-  let dates = reactive<Dates[]>([])
+  const dates = reactive<Dates[]>([])
   // let dates = [] as number[][];
 
-  onMounted(calendarData);
+  onMounted(initCalendarData);
   let monthFDay = 0;     // 당월 시작 요일
   let monthLDate = 0;    // 당월 마지막 날짜
   let preMonthLDate = 0; // 전월 마지막 날짜
 
-  function calendarData () {
+  
+  function initCalendarData () {
     [monthFDay,monthLDate,preMonthLDate] = getDate(year, month);   // 시작일, 시작요일, 말일 세팅
-     dates = getMonthOfDays(monthFDay, monthLDate, preMonthLDate); // 당월 날짜 세팅
+     getDayOfMonths(monthFDay, monthLDate, preMonthLDate); // 당월 날짜 세팅
   }
 
   function getDate(year: number, month: number) {
@@ -63,12 +60,11 @@ import { weekends, todayYr, todayMonth } from './today';
 }
 
   // 당월 날짜 세팅
-  function getMonthOfDays(monthFDay:number, monthLDate:number, preMonthLDate:number) {
+  function getDayOfMonths(monthFDay:number, monthLDate:number, preMonthLDate:number) {
     let preDay = preMonthLDate - monthFDay +1; //전월 마지막일자 - 당월 시작요일 ( 전월 마지막주 시작일자) 
     // 전월 마지막주간 날짜 데이터 넣기
     for(let i=0; i <= monthFDay-1; i++){
         dates.push({
-          week : 1,
           date : preDay,
           todo : '',
           isHoliDay : false,
@@ -80,7 +76,6 @@ import { weekends, todayYr, todayMonth } from './today';
     // 당월 날짜 데이터 넣기
     for(let d=1; d<= monthLDate; d++) {
         dates.push({
-          week : dates.length <= 7? 1 : dates.length %7 ,
           date : d,
           todo : '',
           isHoliDay : new Date(year,month,d).getDay() === 0? true : false,
@@ -97,7 +92,6 @@ import { weekends, todayYr, todayMonth } from './today';
     // }
     // if(len>0) dates[day].week = weekOfDays; // 나머지 날짜 세팅
     
-    return dates;
   }
 
   // 당월이 아닌 전월, 후월만 True 리턴
@@ -114,6 +108,30 @@ import { weekends, todayYr, todayMonth } from './today';
 </script>
  
 <style scoped lang="scss">    
+  .content_box {
+    width: 100%;
+  }
+  .content_grid {
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    border-bottom: 1px solid rgb(209, 208, 208);
+    margin-top: 5px;
+    margin-bottom: 10px;
+  }
+  .weeks {
+    text-align: center;
+    font-size: 18px;
+    padding-bottom: 10px;
+  }
+  .days {
+    text-align: start;
+    font-size: 18px;
+    padding-left: 30px;
+    & .dayBox {
+      height: 95px;
+    }
+  }
+
   .hDay {
     color: crimson;
   }
