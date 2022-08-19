@@ -36,10 +36,7 @@ import { weekends, todayYr, todayMonth, getDate} from './today';
     isCurrMonth? : boolean
   }
 
-  let dates = reactive<Dates[]>([{
-    isHoliDay   = false,
-    isCurrMonth = true
-  }])
+  const dates = reactive<Dates[]>([])
   // let dates = [] as number[][];
 
   onMounted(calendarData);
