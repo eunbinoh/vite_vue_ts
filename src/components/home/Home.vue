@@ -13,9 +13,8 @@ import 'bulma/css/bulma.css'
 </script>
 
 <style scoped lang="scss">
-@import url("https://fonts.googleapis.com/css2?family=Stylish&display=swap");
+@import "@/assets/style/main_style.scss";
 main {
-  font-family: "Stylish", sans-serif;
   text-align: center;
   margin-top: 20px;
   display: flex;

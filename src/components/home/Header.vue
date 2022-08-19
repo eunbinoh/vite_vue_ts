@@ -1,6 +1,6 @@
 <template>
   <header>
-    <h1> My Work Diary ( {{ today }} )</h1>
+    <h1><router-link to="/"> My Work Diary ( {{ today }} ) </router-link> </h1>
     <p>Author_ nonbi</p>
   </header>
 </template>
@@ -13,16 +13,23 @@ const today = dayjs().format('MM/DD')
 </script>
 
 <style scoped lang="scss">
-@import url("https://fonts.googleapis.com/css2?family=Stylish&display=swap");
+@import "@/assets/style/main_style.scss";
+
 header {
-  font-family: "Stylish", sans-serif;
   background-color: #9c7bac85;
   color: aliceblue;
-
+                     
   & h1 {
     font-size: 30px;
     text-align: center;
     margin-top: 10px;
+    cursor: pointer;
+    & a {
+      color: aliceblue;
+    }
+    & a:hover {
+      color: #9c7bac85;
+    }
   }
   & p {
     font-size: 20px;

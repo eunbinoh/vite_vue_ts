@@ -2,12 +2,13 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
 import  MyCalenar from '@/components/calendar/MyCalendar.vue';
 import  TodoApp from '@/components/todo/TodoApp.vue';
+import Home from '@/components/home/Home.vue';
 
 const routes :RouteRecordRaw[] = [
   {
     name: 'Home',
-    path: '',
-    component: () => import('@/components/home/Home.vue'),
+    path: '/',
+    component: Home,
   },
   {
     name: 'MyCalenar',
