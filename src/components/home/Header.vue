@@ -14,27 +14,4 @@ const today = dayjs().format('MM/DD')
 
 <style scoped lang="scss">
 @import "@/assets/style/main_style.scss";
-
-header {
-  background-color: #9c7bac85;
-  color: aliceblue;
-                     
-  & h1 {
-    font-size: 30px;
-    text-align: center;
-    margin-top: 10px;
-    cursor: pointer;
-    & a {
-      color: aliceblue;
-    }
-    & a:hover {
-      color: #9c7bac85;
-    }
-  }
-  & p {
-    font-size: 20px;
-    text-align: right;
-    margin-right: 20px;
-  }
-}
 </style>

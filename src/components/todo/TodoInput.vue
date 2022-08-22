@@ -12,12 +12,12 @@
 
 <script setup lang="ts">
 const props = defineProps({
-    item: { type: String, required: true }
+    item: String
 })
 
 const emit = defineEmits(['input','add'])
 
-function handleInput(event: InputEvent) {
+function handleInput(event: InputEvent){
     const eventTarget = event.target as HTMLInputElement;
     emit('input', eventTarget.value);
 }

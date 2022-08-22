@@ -1,5 +1,9 @@
 <template>
-  <Header/>
+  <header>
+    <h1><router-link to="/"> My Work Diary ( {{ dayjs().format('MM/DD') }} ) </router-link> </h1>
+    <p>Author_ nonbi</p>
+  </header>
+  
   <main>
     <TodoInput :item="content.todoText" @input="updateTodoText" @add="addTodoItem" />
     <div class="todoList">
@@ -21,7 +25,7 @@
 import TodoInput from '@/components/todo/TodoInput.vue'
 import TodoItems from './TodoItems.vue'
 import Header from '@/components/home/header.vue'
-import 'bulma/css/bulma.css'
+import dayjs from 'dayjs'
 import { reactive } from 'vue'
 
 const content = reactive({
@@ -30,18 +34,17 @@ const content = reactive({
 })
 
 const addTodoItem = () => {
-  const value = content.todoText
-  const todo: Todo = {
-    title: value,
+  content.todoItems.push({
+    title: content.todoText,
     done: false,
-  }
+    date: dayjs().format('YY/MM/DD')
+  })
 
-  content.todoItems.push(todo)
   storage.save(content.todoItems)
-  initTodoText()
+  clearTodoText()
 }
 
-const initTodoText = () => {
+const clearTodoText = () => {
   content.todoText = ''
 }
 
