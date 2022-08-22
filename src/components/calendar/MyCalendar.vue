@@ -3,10 +3,10 @@
 <main>
     <div class="main_container">
         <div class="left_box_container">
-            <CalendarNav/>
+            <CalendarNav :year="yearMonth.year" :month="yearMonth.month" @moveToYm="moveToYearMonth"/>
         </div>
         <div class="right_box_container">
-           <CalendarContent/>
+           <CalendarContent :year="yearMonth.year" :month="yearMonth.month" />
         </div>
     </div>
 </main>
@@ -14,24 +14,25 @@
 
 <script setup lang="ts">
 import Header from '@/components/home/header.vue'
-import { defineComponent, onMounted, reactive, ref } from 'vue';
 import CalendarNav from './calendarNav.vue';
 import CalendarContent from './CalendarContent.vue';
+import { currentYr ,currentMonth} from './today';
+import { reactive, watch } from 'vue';
 
+// provide('month', yearMonth.month)
 
+const yearMonth = reactive<{
+    year : number,
+    month : number
+}>({
+    year : currentYr,
+    month : currentMonth
+})
 
-
-
-
-
-
-
-
-
-
-
-
-
+function moveToYearMonth(y:number, m:number) {
+    yearMonth.month = m
+    yearMonth.year = y
+}
 
 </script>
 

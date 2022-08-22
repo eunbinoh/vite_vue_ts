@@ -4,20 +4,40 @@
     <h1 class="header_month"> {{ month }} </h1>        
   </div>
   <div class="header_btn">
-      <button id="preMonBtn" @click="moveTo"> &lt; </button>
-      <button id="nextMonBtn" @click="moveTo"> > </button>
+      <button id="preMonBtn" @click="moveToPre"> &lt; </button>
+      <button id="nextMonBtn" @click="moveToNext"> > </button>
   </div>
  
 </template>
 
 <script setup lang="ts">
-import { today, todayYr ,todayMonth} from './today';
+import { ref } from 'vue';
 
-const year = todayYr
-const month = todayMonth
+const props = withDefaults(defineProps<{
+    year : number,
+    month : number 
+}>(), {})
 
-function moveTo() {
+const year = ref(props.year)
+const month = ref(props.month)
 
+const emit = defineEmits(['moveToYm'])
+
+function moveToPre() {
+  --month.value
+  if (month.value < 1){
+    --year.value
+    month.value = 12
+  }
+  emit('moveToYm', year.value, month.value)
+}
+function moveToNext() {
+  ++month.value
+  if (month.value > 12){
+    ++year.value
+    month.value = 1
+  }
+  emit('moveToYm', year.value, month.value)
 }
 
 </script>
