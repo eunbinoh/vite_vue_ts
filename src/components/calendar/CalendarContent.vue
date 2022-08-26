@@ -3,21 +3,10 @@
     <div class="container">
       <div class="content_box ">
         <div class="content_grid weeks">
-            <div v-for="w in weeks" class="" :class="{'hDay':w==='SUN'}">{{ w }}</div>
+          <div v-for="w in weeks" class="" :class="{'hDay':w==='SUN'}">{{ w }}</div>
         </div>
         <div class="content_grid days">
-
           <DateBox v-for="d in dates" :d="d" class="dateBox"/>
-
-          <!-- <div v-for="d in dates" class="dateBox" >
-            <div class="days_date" :class="{'oDay': !d.isCurrMonth, 'hDay': d.isHoliDay }"> 
-              <div> {{ d.date }} </div> 
-              <div :class="{'days_todo': d.todo }"> 
-                <router-link to="/todo" class="routerTodo"> {{ d.todo }} </router-link>
-              </div>
-            </div>
-          </div> -->
-
         </div>
       </div>
     </div>
@@ -32,11 +21,16 @@ const props = withDefaults(defineProps<{
   yearMonth : {year : number, month : number}
 }>(), {})
 
+const weeks = ['SUN', 'MON', 'TUE','WED','THU','FRI','SAT'];
+const dates = reactive<Dates[]>([]);
+
 let year  = props.yearMonth.year;
 let month = props.yearMonth.month;
-const weeks = ['SUN', 'MON', 'TUE','WED','THU','FRI','SAT'];
 
-const dates = reactive<Dates[]>([])
+let monthFDay = 0;     // 당월 시작 요일
+let monthLDate = 0;    // 당월 마지막 날짜
+let preMonthLDate = 0; // 전월 마지막 날짜
+
 
 watch ( props,
   (n) => {
@@ -47,10 +41,6 @@ watch ( props,
     initCalendarData(); // 당월 날짜 세팅 초기화
   }
 )
-
-let monthFDay = 0;     // 당월 시작 요일
-let monthLDate = 0;    // 당월 마지막 날짜
-let preMonthLDate = 0; // 전월 마지막 날짜
 
 onMounted(initCalendarData)
 
@@ -115,7 +105,6 @@ function getDayOfMonths(monthFDay:number, monthLDate:number, preMonthLDate:numbe
   } 
   
 }
-
 
 </script>
  
