@@ -6,14 +6,18 @@
             <div v-for="w in weeks" class="" :class="{'hDay':w==='SUN'}">{{ w }}</div>
         </div>
         <div class="content_grid days">
-            <div v-for="d in dates" class="dayBox" >
-              <div class="days_date" :class="{'oDay': !d.isCurrMonth, 'hDay': d.isHoliDay }"> 
-                {{ d.date }} 
-                <div :class="{'days_todo': d.todo }"> 
-                  <router-link to="/todo" class="routerTodo"> {{ d.todo }} </router-link>
-                </div>
+
+          <DateBox v-for="d in dates" :d="d" class="dateBox"/>
+
+          <!-- <div v-for="d in dates" class="dateBox" >
+            <div class="days_date" :class="{'oDay': !d.isCurrMonth, 'hDay': d.isHoliDay }"> 
+              <div> {{ d.date }} </div> 
+              <div :class="{'days_todo': d.todo }"> 
+                <router-link to="/todo" class="routerTodo"> {{ d.todo }} </router-link>
               </div>
             </div>
+          </div> -->
+
         </div>
       </div>
     </div>
@@ -21,27 +25,27 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, watch } from 'vue';
+import DateBox from './DateBox.vue';
 
 const props = withDefaults(defineProps<{
-  year : number,
-  month : number,
+  yearMonth : {year : number, month : number}
 }>(), {})
 
-const year = ref(props.year);
-const month = ref(props.month);
+let year  = props.yearMonth.year;
+let month = props.yearMonth.month;
 const weeks = ['SUN', 'MON', 'TUE','WED','THU','FRI','SAT'];
 
 const dates = reactive<Dates[]>([])
 
 watch ( props,
-    (n) => {
-      year.value = n.year
-      month.value = n.month
+  (n) => {
+    year = n.yearMonth.year
+    month = n.yearMonth.month
 
-      initDate();
-      initCalendarData();
-    }
+    initCalcData();     // 당월 날짜 세팅을 위한 계산 초기화
+    initCalendarData(); // 당월 날짜 세팅 초기화
+  }
 )
 
 let monthFDay = 0;     // 당월 시작 요일
@@ -50,13 +54,13 @@ let preMonthLDate = 0; // 전월 마지막 날짜
 
 onMounted(initCalendarData)
 
-function initDate() {
+function initCalcData() {
   monthFDay = monthLDate = preMonthLDate = 0;
   dates.length = 0;  // Object.assign(dates, null)
 }
 
 function initCalendarData () {
-  [monthFDay,monthLDate,preMonthLDate] = getDate(year.value, month.value);   // 시작일, 시작요일, 말일 세팅
+  [monthFDay,monthLDate,preMonthLDate] = getDate(year, month);   // 시작일, 시작요일, 말일 세팅
     getDayOfMonths(monthFDay, monthLDate, preMonthLDate); // 당월 날짜 세팅
 }
 
@@ -92,13 +96,13 @@ function getDayOfMonths(monthFDay:number, monthLDate:number, preMonthLDate:numbe
       dates.push({
         date : d,
         todo : d === 29 ? 'PAY DAY' : '', // 가데이터
-        isHoliDay : new Date(year.value,month.value-1,d).getDay() === 0? true : false,
+        isHoliDay : new Date(year,month-1,d).getDay() === 0? true : false,
         isCurrMonth : true
       })
   }
 
   // 다음달 날짜 데이터 넣기
-  const lastDay = new Date(year.value,month.value-1,monthLDate).getDay();
+  const lastDay = new Date(year,month-1,monthLDate).getDay();
   if( lastDay === 6) return; 
   // 말일이 토요일인 Full Week 빼고, 다음달 날짜 미리보기 세팅
 
@@ -135,39 +139,11 @@ function getDayOfMonths(monthFDay:number, monthLDate:number, preMonthLDate:numbe
     text-align: start;
     font-size: 18px;
     padding-left: 10px;
-    & .dayBox {
+    & .dateBox {
       height: 95px;
     }
-  }
-
-  .hDay {
-    color: crimson;
-  }
-  .oDay {
-    opacity: 30%;
   }
   .weekDays {
     text-align: center;
   }
-  .days_date {
-    padding-bottom: 50px;
-  }
-  .days_todo {
-    text-decoration: none;
-    width: 95%;
-    height: 100%;
-    padding-left: 10px;
-    border: 1px solid plum;
-    border-radius: 5px;
-    color: #9270a3;
-  }
-  .routerTodo:hover {
-    cursor: pointer;
-    font-weight: bold;
-    color: white;
-    background-color: #9c7bac85;
-    border-radius: 5px;
-    border: 1px solid #9c7bac85;
-  }
-
 </style>

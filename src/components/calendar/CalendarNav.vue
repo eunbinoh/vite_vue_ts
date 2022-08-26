@@ -1,44 +1,50 @@
 <template>
   <div class="header_number">
-    <h1 class="header_year"> {{ year }} </h1>
-    <h1 class="header_month"> {{ month }} </h1>        
+    <h1 class="header_year"> {{ modelValue.year }} </h1>
+    <h1 class="header_month"> {{ modelValue.month }} </h1>        
   </div>
   <div class="header_btn">
-      <button id="preMonBtn" @click="moveToPre"> &lt; </button>
-      <button id="nextMonBtn" @click="moveToNext"> > </button>
+      <button id="preMonBtn" @click="moveYearMonth(-1)"> &lt; </button>
+      <button id="nextMonBtn" @click="moveYearMonth(1)"> > </button>
   </div>
  
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { watchEffect } from 'vue';
 
-const props = withDefaults(defineProps<{
-    year : number,
-    month : number 
-}>(), {})
-
-const year = ref(props.year)
-const month = ref(props.month)
-
-const emit = defineEmits(['moveToYm'])
-
-function moveToPre() {
-  --month.value
-  if (month.value < 1){
-    --year.value
-    month.value = 12
+const props = defineProps<{
+  modelValue: {
+    year: number,
+    month: number
   }
-  emit('moveToYm', year.value, month.value)
+}>()
+
+// const props = withDefaults(defineProps<{
+//   yearMonth : {year : number, month : number}
+// }>(), {})
+  // let year :number = props.yearMonth.year
+  // let month :number = props.yearMonth.month
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: { year: number, month: number }): void
+}>()
+
+watchEffect(() => {
+  emit('update:modelValue', props.modelValue)
+})
+
+/**
+ * 이전달 이동 / 다음달 이동
+ * @param clacNum +1 / -1
+ */
+function moveYearMonth(clacNum: number) {
+  let setNum = (props.modelValue.month === 12 && clacNum == 1)? -11 : (props.modelValue.month === 1 && clacNum == -1? 11 : clacNum )
+  if (Math.abs(setNum) === 11 ) props.modelValue.year += clacNum  // month 12++ || 1--  -> year +1 / -1
+
+  props.modelValue.month += setNum
 }
-function moveToNext() {
-  ++month.value
-  if (month.value > 12){
-    ++year.value
-    month.value = 1
-  }
-  emit('moveToYm', year.value, month.value)
-}
+
 
 </script>
  

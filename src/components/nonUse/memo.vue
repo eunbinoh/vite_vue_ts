@@ -89,6 +89,7 @@
       case "CH", "IN", "KI" -> 4;
       default -> 3;
 
+      StringUtils <-- 대체제
 *
 *
 * /
